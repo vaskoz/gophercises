@@ -11,12 +11,27 @@ import (
 	"time"
 )
 
-var open = os.Open
-var args = os.Args
-var stderr = os.Stderr
-var stdout = os.Stdout
-var stdin = os.Stdin
-var exit = os.Exit
+var open func(name string) (io.ReadCloser, error)
+var args []string
+var stderr io.Writer
+var stdout io.Writer
+var stdin io.Reader
+var exit func(int)
+
+func setup() {
+	open = func(name string) (io.ReadCloser, error) {
+		return os.Open(name)
+	}
+	args = os.Args
+	stderr = os.Stderr
+	stdout = os.Stdout
+	stdin = os.Stdin
+	exit = os.Exit
+}
+
+func init() {
+	setup()
+}
 
 func main() {
 	logger := log.New(stderr, fmt.Sprintf("%s-", args[0]), log.LstdFlags)
@@ -28,11 +43,9 @@ func main() {
 		exit(1)
 		return
 	}
-	limitDuration, err := time.ParseDuration(fmt.Sprintf("%ds", *limit))
-	if err != nil {
-		panic("this is a developer mistake")
-	}
+	limitDuration, _ := time.ParseDuration(fmt.Sprintf("%ds", *limit))
 	var reader io.ReadCloser
+	var err error
 	reader, err = open(*csvFile)
 	if err != nil {
 		logger.Println("Could not open csv file", err)
@@ -68,4 +81,5 @@ RecordLoop:
 		}
 	}
 	fmt.Fprintf(stdout, "\nYou score %d out of %d.\n", right, total)
+	exit(0)
 }
