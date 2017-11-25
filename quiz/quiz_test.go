@@ -10,6 +10,8 @@ import (
 
 func TestMainBadArgs(t *testing.T) {
 	args = []string{"quiz", "-limit", "-1"}
+	buff := new(bytes.Buffer)
+	stderr = buff
 	var code int
 	exit = func(c int) {
 		code = c
@@ -18,10 +20,15 @@ func TestMainBadArgs(t *testing.T) {
 	if code != 1 {
 		t.Errorf("expected exit code 1, but got %d", code)
 	}
+	if out := buff.String(); !strings.Contains(out, "invalid value") {
+		t.Errorf("expected an invalid value message, but got %s", out)
+	}
 }
 
 func TestMainMissingCSVFile(t *testing.T) {
 	args = []string{"quiz", "-limit", "3", "-csv", "legitfile"}
+	buff := new(bytes.Buffer)
+	stderr = buff
 	var code int
 	exit = func(c int) {
 		code = c
@@ -33,10 +40,15 @@ func TestMainMissingCSVFile(t *testing.T) {
 	if code != 1 {
 		t.Errorf("missing file should return an error code of 1, but got %d", code)
 	}
+	if out := buff.String(); !strings.Contains(out, "Could not open csv file") {
+		t.Errorf("expected file could not be opened, but got %s", out)
+	}
 }
 
 func TestMainBadCSVReadAll(t *testing.T) {
 	args = []string{"quiz", "-limit", "3", "-csv", "legitfile"}
+	buff := new(bytes.Buffer)
+	stderr = buff
 	var code int
 	exit = func(c int) {
 		code = c
@@ -48,6 +60,9 @@ Ken,Thompson,ken`), nil
 	main()
 	if code != 1 {
 		t.Errorf("incorrect CSV should return an error code of 1, but got %d", code)
+	}
+	if out := buff.String(); !strings.Contains(out, "error in reading data file") {
+		t.Errorf("expected error reading file, but got %s", out)
 	}
 }
 
