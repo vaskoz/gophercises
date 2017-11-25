@@ -102,7 +102,7 @@ func TestMainImmediateTimeout(t *testing.T) {
 func TestMainFullMarksUnit(t *testing.T) {
 	buffOutput := new(bytes.Buffer)
 	stdout = buffOutput
-	stdin = strings.NewReader("10 2 11 3 14 4 5 6 5 6 6 7")
+	stdin = strings.NewReader("10\n2\n11\n3\n14\n4\n5\n6\n5\n6\n6\n7\n")
 	args = []string{"quiz"}
 	var code int
 	exit = func(c int) {
@@ -135,7 +135,7 @@ func TestMainFullMarksUnit(t *testing.T) {
 func TestMainBonusCaseInsensitive(t *testing.T) {
 	buffOutput := new(bytes.Buffer)
 	stdout = buffOutput
-	stdin = strings.NewReader("bar ho")
+	stdin = strings.NewReader("bar\nho\n")
 	args = []string{"quiz"}
 	var code int
 	exit = func(c int) {
@@ -153,5 +153,27 @@ hey,HO`), nil
 	if !strings.Contains(out, "You scored 2 out of 2.") {
 		t.Errorf("Expected successful run, but got %s", out)
 	}
+}
 
+func TestMainBonusSpaceInsensitive(t *testing.T) {
+	buffOutput := new(bytes.Buffer)
+	stdout = buffOutput
+	stdin = strings.NewReader(" bar \n ho \n")
+	args = []string{"quiz"}
+	var code int
+	exit = func(c int) {
+		code = c
+	}
+	open = func(f string) (io.Reader, error) {
+		return strings.NewReader(`foo,bAr
+hey,HO`), nil
+	}
+	main()
+	if code != 0 {
+		t.Errorf("Expected a successful run, but got %d", code)
+	}
+	out := buffOutput.String()
+	if !strings.Contains(out, "You scored 2 out of 2.") {
+		t.Errorf("Expected successful run, but got %s", out)
+	}
 }

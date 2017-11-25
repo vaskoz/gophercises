@@ -73,7 +73,7 @@ RecordLoop:
 		wg.Add(1)
 		go func() {
 			var line string
-			fmt.Fscanf(stdin, "%s", &line)
+			fmt.Fscanln(stdin, &line)
 			result <- line
 			wg.Done()
 		}()

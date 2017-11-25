@@ -9,7 +9,7 @@ import (
 func TestIntegration(t *testing.T) {
 	setup()
 	args = []string{"quiz"}
-	stdin = strings.NewReader("10 2 11 3 14 4 5 6 5 6 6 7")
+	stdin = strings.NewReader("10\n2\n11\n3\n14\n4\n5\n6\n5\n6\n6\n7\n")
 	exit = func(c int) {}
 	buff := new(bytes.Buffer)
 	stdout = buff
