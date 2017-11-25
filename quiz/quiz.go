@@ -8,6 +8,8 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
+	"sync"
 	"time"
 )
 
@@ -66,20 +68,25 @@ RecordLoop:
 	for problemNum, record := range records {
 		fmt.Fprintf(stdout, "Problem #%d: %s = ", problemNum+1, record[0])
 		result := make(chan string, 1)
+		var wg sync.WaitGroup
+		wg.Add(1)
 		go func() {
 			var line string
-			fmt.Fscanln(stdin, &line)
+			fmt.Fscanf(stdin, "%s", &line)
 			result <- line
+			wg.Done()
 		}()
 		select {
 		case <-ctx.Done():
+			wg.Wait()
 			break RecordLoop
 		case answer := <-result:
-			if answer == record[1] {
+			wg.Wait()
+			if strings.TrimSpace(answer) == strings.TrimSpace(record[1]) {
 				right++
 			}
 		}
 	}
-	fmt.Fprintf(stdout, "\nYou score %d out of %d.\n", right, total)
+	fmt.Fprintf(stdout, "\nYou scored %d out of %d.\n", right, total)
 	exit(0)
 }
