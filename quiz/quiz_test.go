@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"math/rand"
 	"strings"
 	"testing"
 )
@@ -175,5 +176,32 @@ hey,HO`), nil
 	out := buffOutput.String()
 	if !strings.Contains(out, "You scored 2 out of 2.") {
 		t.Errorf("Expected successful run, but got %s", out)
+	}
+}
+
+func TestMainBonusShuffle(t *testing.T) {
+	rand.Seed(1)
+	buffOutput := new(bytes.Buffer)
+	stdout = buffOutput
+	stdin = strings.NewReader("1\n2\n3\n4\n5\n")
+	args = []string{"quiz", "-shuffle"}
+	var code int
+	exit = func(c int) {
+		code = c
+	}
+	open = func(f string) (io.Reader, error) {
+		return strings.NewReader(`a,1
+b,2
+c,3
+d,4
+e,5`), nil
+	}
+	main()
+	if code != 0 {
+		t.Errorf("Expected a successful run, but got %d", code)
+	}
+	out := buffOutput.String()
+	if !strings.Contains(out, "Problem #1: b = Problem #2: a = Problem #3: d = Problem #4: c = Problem #5: e =") {
+		t.Errorf("Expected shuffle to prevent perfect score, but got %s", out)
 	}
 }

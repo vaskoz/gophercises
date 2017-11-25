@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math/rand"
 	"os"
 	"strings"
 	"sync"
@@ -21,6 +22,7 @@ var stdin io.Reader
 var exit func(int)
 
 func setup() {
+	rand.Seed(time.Now().UnixNano())
 	open = func(name string) (io.Reader, error) {
 		return os.Open(name)
 	}
@@ -41,6 +43,7 @@ func main() {
 	fs.SetOutput(stderr)
 	csvFile := fs.String("csv", "problems.csv", "a csv file in the format of 'question,answer'")
 	limit := fs.Uint("limit", 30, "the time limit for the quiz in seconds")
+	shuffle := fs.Bool("shuffle", false, "shuffle the input")
 	parseError := fs.Parse(args[1:])
 	if parseError != nil {
 		exit(1)
@@ -66,8 +69,14 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), limitDuration)
 	defer cancel()
 RecordLoop:
-	for problemNum, record := range records {
-		fmt.Fprintf(stdout, "Problem #%d: %s = ", problemNum+1, record[0])
+	for i := 0; i < len(records); i++ {
+		if *shuffle {
+			if remain := len(records) - i - 1; remain != 0 {
+				j := rand.Intn(remain) + i
+				records[i], records[j] = records[j], records[i]
+			}
+		}
+		fmt.Fprintf(stdout, "Problem #%d: %s = ", i+1, records[i][0])
 		result := make(chan string, 1)
 		var wg sync.WaitGroup
 		wg.Add(1)
@@ -83,7 +92,7 @@ RecordLoop:
 			break RecordLoop
 		case answer := <-result:
 			wg.Wait()
-			if strings.ToLower(strings.TrimSpace(answer)) == strings.ToLower(strings.TrimSpace(record[1])) {
+			if strings.ToLower(strings.TrimSpace(answer)) == strings.ToLower(strings.TrimSpace(records[i][1])) {
 				right++
 			}
 		}
