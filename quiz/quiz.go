@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-var open func(name string) (io.ReadCloser, error)
+var open func(name string) (io.Reader, error)
 var args []string
 var stderr io.Writer
 var stdout io.Writer
@@ -19,7 +19,7 @@ var stdin io.Reader
 var exit func(int)
 
 func setup() {
-	open = func(name string) (io.ReadCloser, error) {
+	open = func(name string) (io.Reader, error) {
 		return os.Open(name)
 	}
 	args = os.Args
@@ -44,7 +44,7 @@ func main() {
 		return
 	}
 	limitDuration, _ := time.ParseDuration(fmt.Sprintf("%ds", *limit))
-	var reader io.ReadCloser
+	var reader io.Reader
 	var err error
 	reader, err = open(*csvFile)
 	if err != nil {
