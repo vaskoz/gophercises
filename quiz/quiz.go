@@ -83,7 +83,7 @@ RecordLoop:
 			break RecordLoop
 		case answer := <-result:
 			wg.Wait()
-			if strings.TrimSpace(answer) == strings.TrimSpace(record[1]) {
+			if strings.ToLower(strings.TrimSpace(answer)) == strings.ToLower(strings.TrimSpace(record[1])) {
 				right++
 			}
 		}

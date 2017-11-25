@@ -131,3 +131,27 @@ func TestMainFullMarksUnit(t *testing.T) {
 		t.Errorf("Expected successful run, but got %s", out)
 	}
 }
+
+func TestMainBonusCaseInsensitive(t *testing.T) {
+	buffOutput := new(bytes.Buffer)
+	stdout = buffOutput
+	stdin = strings.NewReader("bar ho")
+	args = []string{"quiz"}
+	var code int
+	exit = func(c int) {
+		code = c
+	}
+	open = func(f string) (io.Reader, error) {
+		return strings.NewReader(`foo,bAr
+hey,HO`), nil
+	}
+	main()
+	if code != 0 {
+		t.Errorf("Expected a successful run, but got %d", code)
+	}
+	out := buffOutput.String()
+	if !strings.Contains(out, "You scored 2 out of 2.") {
+		t.Errorf("Expected successful run, but got %s", out)
+	}
+
+}
