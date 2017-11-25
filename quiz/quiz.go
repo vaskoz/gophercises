@@ -38,6 +38,7 @@ func init() {
 func main() {
 	logger := log.New(stderr, fmt.Sprintf("%s-", args[0]), log.LstdFlags)
 	fs := flag.NewFlagSet(args[0], flag.ContinueOnError)
+	fs.SetOutput(stderr)
 	csvFile := fs.String("csv", "problems.csv", "a csv file in the format of 'question,answer'")
 	limit := fs.Uint("limit", 30, "the time limit for the quiz in seconds")
 	parseError := fs.Parse(args[1:])
