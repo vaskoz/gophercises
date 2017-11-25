@@ -6,6 +6,7 @@ import (
 	"io"
 	"math/rand"
 	"strings"
+	"syscall"
 	"testing"
 )
 
@@ -203,5 +204,32 @@ e,5`), nil
 	out := buffOutput.String()
 	if !strings.Contains(out, "Problem #1: b = Problem #2: a = Problem #3: d = Problem #4: c = Problem #5: e =") {
 		t.Errorf("Expected shuffle to prevent perfect score, but got %s", out)
+	}
+}
+
+func TestMainShutdownSignal(t *testing.T) {
+	buffOutput := new(bytes.Buffer)
+	stdout = buffOutput
+	stdin = strings.NewReader("1\n2\n3\n4\n5\n")
+	args = []string{"quiz"}
+	var code int
+	exit = func(c int) {
+		code = c
+	}
+	open = func(f string) (io.Reader, error) {
+		return strings.NewReader(`a,1
+b,2
+c,3
+d,4
+e,5`), nil
+	}
+	stop <- syscall.SIGINT
+	main()
+	if code != 0 {
+		t.Errorf("Expected a successful run, but got %d", code)
+	}
+	out := buffOutput.String()
+	if strings.Contains(out, "You scored 5 out of 5") {
+		t.Errorf("Expected shutdown to prevent perfect score, but got %s", out)
 	}
 }

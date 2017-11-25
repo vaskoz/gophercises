@@ -9,17 +9,22 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"os/signal"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 )
 
-var open func(name string) (io.Reader, error)
-var args []string
-var stderr io.Writer
-var stdout io.Writer
-var stdin io.Reader
-var exit func(int)
+var (
+	open   func(name string) (io.Reader, error)
+	args   []string
+	stderr io.Writer
+	stdout io.Writer
+	stdin  io.Reader
+	exit   func(int)
+	stop   = make(chan os.Signal, 1)
+)
 
 func setup() {
 	rand.Seed(time.Now().UnixNano())
@@ -39,6 +44,7 @@ func init() {
 
 func main() {
 	logger := log.New(stderr, fmt.Sprintf("%s-", args[0]), log.LstdFlags)
+	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
 	fs := flag.NewFlagSet(args[0], flag.ContinueOnError)
 	fs.SetOutput(stderr)
 	csvFile := fs.String("csv", "problems.csv", "a csv file in the format of 'question,answer'")
@@ -87,6 +93,10 @@ RecordLoop:
 			wg.Done()
 		}()
 		select {
+		case <-stop:
+			cancel()
+			wg.Wait()
+			break RecordLoop
 		case <-ctx.Done():
 			wg.Wait()
 			break RecordLoop
