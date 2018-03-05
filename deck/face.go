@@ -34,3 +34,7 @@ const (
 	// King represents a king.
 	King
 )
+
+var facesByRank = [...]Face{Ace, Two,
+	Three, Four, Five, Six, Seven, Eight,
+	Nine, Ten, Jack, Queen, King}
