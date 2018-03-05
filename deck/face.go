@@ -2,7 +2,7 @@
 
 package deck
 
-// Face represents the face value of the card
+// Face represents the face value of the card.
 type Face uint8
 
 const (
