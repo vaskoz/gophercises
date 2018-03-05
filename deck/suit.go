@@ -17,3 +17,5 @@ const (
 	// Joker represents jokers.
 	Joker
 )
+
+var suitsByRank = [...]Suit{Spade, Diamond, Club, Heart}
