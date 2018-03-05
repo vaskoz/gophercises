@@ -16,6 +16,11 @@ type Card struct {
 // String returns the string representation of a card.
 func (c Card) String() string {
 	if c.Suit == Joker {
+		// NOTE: Purposely didn't use c.Suit.String() here.
+		// Otherwise, 'go generate' complains that the method doesn't exist yet.
+		// gometalinter .
+		// card.go:24:10:warning: should use String() instead of fmt.Sprintf
+		// (S1025) (megacheck)
 		return fmt.Sprintf("%s", c.Suit)
 	}
 	return fmt.Sprintf("%s of %ss", c.Face, c.Suit)
