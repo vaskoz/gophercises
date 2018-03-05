@@ -45,14 +45,12 @@ func sortValue(c Card) int {
 
 var shuffleRand = rand.New(rand.NewSource(time.Now().Unix()))
 
-// Shuffle randomly rearranges the cards in a new slice.
-func Shuffle(cards []Card) []Card {
-	ret := make([]Card, len(cards))
+// Shuffle randomly rearranges the cards.
+func Shuffle(cards []Card) {
 	perm := shuffleRand.Perm(len(cards))
 	for i, j := range perm {
-		ret[i] = cards[j]
+		cards[i], cards[j] = cards[j], cards[i]
 	}
-	return ret
 }
 
 // Jokers return n number of joker cards
