@@ -73,3 +73,14 @@ func Deck(n int) []Card {
 	}
 	return decks
 }
+
+// Filter returns a subset of cards that satisfy the predicate condition.
+func Filter(cards []Card, f func(card Card) bool) []Card {
+	var matchingCards []Card
+	for _, c := range cards {
+		if !f(c) {
+			matchingCards = append(matchingCards, c)
+		}
+	}
+	return matchingCards
+}
